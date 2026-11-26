@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIDGELINE — Skyrunner Flight Trainer</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #0a1622; }
+  body { font-family: "Courier New", monospace; color: #d9f3ff; }
+  #view { display: block; width: 100vw; height: 100vh; }
+  #booth {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(720px, 92vw); padding: 28px 32px;
+    background: linear-gradient(160deg, rgba(8,24,38,.96), rgba(14,42,58,.94));
+    border: 1px solid #4fd4e8; box-shadow: 0 0 0 4px rgba(10,30,44,.8), 0 24px 80px #000;
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+  }
+  #booth h1 { margin: 0 0 4px; font-size: 30px; letter-spacing: 9px; color: #7df3ff; text-shadow: 0 0 18px #1ba6c8; }
+  #booth h2 { margin: 0 0 18px; font-size: 12px; letter-spacing: 4px; color: #7fa4b4; font-weight: normal; }
+  #booth p { font-size: 13px; line-height: 1.7; color: #b6d7e3; margin: 8px 0; }
+  .keyrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 20px; }
+  .key { border: 1px solid #31768a; padding: 6px 9px; font-size: 11px; color: #cdeef7; background: #0d2b3b; }
+  #launch {
+    display: inline-block; padding: 12px 26px; border: 1px solid #7df3ff;
+    background: #10475c; color: #edffff; font: bold 14px "Courier New", monospace;
+    letter-spacing: 3px; cursor: pointer;
+  }
+  #launch:hover { background: #1a6b86; }
+  #hint { position: fixed; bottom: 10px; left: 14px; font-size: 11px; color: #6c94a4; letter-spacing: 1px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+<div id="booth">
+  <h1>RIDGELINE</h1>
+  <h2>SKYRUNNER FLIGHT TRAINER / SECTOR 7 — GRANITE COAST</h2>
+  <p>You are flying the <b>Kestrel Mk II</b>, a single-engine survey craft on a coastal mapping run.</p>
+  <p>Thread the amber gate rings in order. Watch your fuel. Put the wheels down and touch the strip gently to finish the sortie. Bank hard near the ridgelines and the hull will start to hurt.</p>
+  <div class="keyrow">
+    <span class="key">W / S — THROTTLE</span>
+    <span class="key">A / D — BANK &amp; TURN</span>
+    <span class="key">↑ / ↓ — PITCH</span>
+    <span class="key">G — GEAR</span>
+    <span class="key">R — RESTART</span>
+    <span class="key">MOUSE — LOOK</span>
+  </div>
+  <button id="launch">BEGIN SORTIE</button>
+  <p id="status">MISSION 1 — RING RUN · 6 GATES · LANDING BONUS</p>
+</div>
+<div id="hint">RIDGELINE · original procedural flight simulator · no assets, no network</div>
+<script type="module">
+import { createFlightGame } from './src/game.js';
+const game = createFlightGame(document.getElementById('view'));
+const booth = document.getElementById('booth');
+document.getElementById('launch').addEventListener('click', () => {
+  booth.classList.add('hidden');
+  game.start();
+});
+window.__flightGame = game;
+</script>
+</body>
+</html>
