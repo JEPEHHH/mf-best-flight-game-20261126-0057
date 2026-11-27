@@ -32,7 +32,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, dev
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 await page.goto('http://127.0.0.1:' + port + '/index.html');
-await page.evaluate(() => document.getElementById('booth').classList.add('hidden'));
+await page.evaluate(() => { document.getElementById('booth').classList.add('hidden'); document.getElementById('hint').style.display = 'none'; });
 await page.waitForFunction(() => !!window.__flightGame);
 
 async function shot(name, setup) {
@@ -60,7 +60,7 @@ await shot('02-gate-flythrough.png', () => {
   const g = window.__flightGame;
   g.pause(); g.reset();
   g.setView('chase'); g.setTod(0.34);
-  g.setPlane({ ...g.plane, x: -318, y: 226, z: -78, heading: 0.36, pitch: 0.03, bank: 0.44, speed: 152, throttle: 0.86, elapsed: 44, distance: 4600, gear: false });
+  g.setPlane({ ...g.plane, x: -318, y: 226, z: -78, heading: 0.62, pitch: 0.03, bank: 0.44, speed: 152, throttle: 0.86, elapsed: 44, distance: 4600, gear: false });
   const m = g.mission;
   m.gateIndex = 1; m.score = 271; m.message = 'GATE G1 CLEARED +271 — NEXT: G2'; m.messageAge = 2.4;
   g.setMission({ ...m });

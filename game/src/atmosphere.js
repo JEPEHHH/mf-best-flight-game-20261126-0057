@@ -49,15 +49,15 @@ export function paintAtmosphereBack(ctx, project, width, height, cam, tod) {
   // Bloom and disc, added rather than painted so the sky brightens under it.
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  const bloom = ctx.createRadialGradient(sun.x, sun.y, 4, sun.x, sun.y, 420);
-  bloom.addColorStop(0, tod > 0.7 ? 'rgba(255,196,150,0.85)' : 'rgba(255,244,214,0.9)');
-  bloom.addColorStop(0.25, 'rgba(255,214,158,0.28)');
+  const bloom = ctx.createRadialGradient(sun.x, sun.y, 4, sun.x, sun.y, 330);
+  bloom.addColorStop(0, tod > 0.7 ? 'rgba(255,196,150,0.55)' : 'rgba(255,244,214,0.6)');
+  bloom.addColorStop(0.3, 'rgba(255,214,158,0.18)');
   bloom.addColorStop(1, 'rgba(255,200,140,0)');
   ctx.fillStyle = bloom;
-  ctx.fillRect(sun.x - 440, sun.y - 440, 880, 880);
+  ctx.fillRect(sun.x - 350, sun.y - 350, 700, 700);
   ctx.fillStyle = tod > 0.7 ? 'rgba(255,222,190,0.95)' : 'rgba(255,252,238,0.98)';
   ctx.beginPath();
-  ctx.arc(sun.x, sun.y, 26, 0, Math.PI * 2);
+  ctx.arc(sun.x, sun.y, 18, 0, Math.PI * 2);
   ctx.fill();
 
   // Streak glare while the sun sits near the centre of the frame.

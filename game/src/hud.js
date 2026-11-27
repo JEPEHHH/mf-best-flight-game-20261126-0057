@@ -13,7 +13,7 @@ const FT_PER_M = 3.28084;
 const DEG = 180 / Math.PI;
 
 function panel(ctx, x, y, w, h) {
-  ctx.fillStyle = 'rgba(6,22,32,0.78)';
+  ctx.fillStyle = 'rgba(6,22,32,0.6)';
   ctx.strokeStyle = 'rgba(105,214,226,0.5)';
   ctx.lineWidth = 1.3;
   ctx.fillRect(x, y, w, h);
@@ -30,7 +30,7 @@ function label(ctx, text, x, y, size = 12, color = '#9fe8ef') {
 // A vertical strip of ticks around the current reading, with a fixed index
 // marker and a unit caption underneath.
 function tape(ctx, x, y, h, value, span, ticks, major, unit) {
-  ctx.fillStyle = 'rgba(6,22,32,0.72)';
+  ctx.fillStyle = 'rgba(6,22,32,0.55)';
   ctx.fillRect(x, y, 46, h);
   ctx.strokeStyle = 'rgba(105,214,226,0.4)';
   ctx.lineWidth = 1;
