@@ -16,7 +16,7 @@ const DEG = 180 / Math.PI;
 // `tod` over the call: read it off the mounted game, and fall back to the dawn
 // default for non-browser paints. Bands mirror the sky ramps in atmosphere.js
 // so the caption never disagrees with the light it is describing.
-const TOD_BANDS = [[0.28, 'pagi'], [0.62, 'siang'], [0.8, 'senja']];
+const TOD_BANDS = [[0.28, 'DAWN'], [0.62, 'DAY'], [0.8, 'DUSK']];
 
 function timeOfDayLabel() {
   const game = typeof window === 'undefined' ? null : window.__flightGame;
