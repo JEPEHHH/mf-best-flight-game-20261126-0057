@@ -36,22 +36,21 @@ function tape(ctx, x, y, h, value, span, ticks, major, unit) {
   ctx.lineWidth = 1;
   ctx.strokeRect(x, y, 46, h);
   const middle = y + h / 2;
+  const step = span / ticks;
   for (let i = -ticks; i <= ticks; i++) {
     const ty = middle + (i / ticks) * (h / 2);
-    const reading = Math.round(value + (i * span) / ticks);
+    const reading = Math.round(value + i * step);
     if (reading < 0) continue;
-    const major_tick = reading % major === 0;
+    const major_tick = reading % major < step;
     ctx.strokeStyle = major_tick ? 'rgba(214,244,250,0.75)' : 'rgba(150,200,214,0.35)';
     ctx.beginPath();
     ctx.moveTo(x + 46, ty);
     ctx.lineTo(x + (major_tick ? 32 : 38), ty);
     ctx.stroke();
-    if (major_tick) {
-      ctx.fillStyle = 'rgba(190,226,236,0.8)';
-      ctx.font = '9px Courier New';
-      ctx.textAlign = 'left';
-      ctx.fillText(String(reading), x + 4, ty + 3);
-    }
+    ctx.fillStyle = major_tick ? 'rgba(214,242,248,0.95)' : 'rgba(170,208,220,0.7)';
+    ctx.font = '9px Courier New';
+    ctx.textAlign = 'left';
+    ctx.fillText(String(reading), x + 4, ty + 3);
   }
   ctx.fillStyle = '#eaffff';
   ctx.beginPath();
@@ -201,7 +200,7 @@ export function paintHud(ctx, width, height, plane, mission, input, view = 'chas
     ctx.lineTo(arrowX + 6, stripY + 40);
     ctx.closePath();
     ctx.fill();
-    label(ctx, 'CAM ' + (cockpit ? 'COCKPIT' : 'CHASE') + '  [C]', width - pad - 130, height - 16, 9, '#6c9aa9');
+  label(ctx, 'CAM ' + (cockpit ? 'COCKPIT' : 'CHASE') + '  [C]', width - pad - 130, cockpit ? pad + 92 : pad + 100, 9, '#6c9aa9');
   }
 
   // Transient order line, lower centre, above the readout boxes.
