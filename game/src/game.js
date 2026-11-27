@@ -1,9 +1,9 @@
-// Ties the flight model, mission, world and painters together into one loop.
-// Also exposes a deterministic stepping hook used by the screenshot renderer
-// so every capture is a frame the real game code actually produced.
+// The frame loop: flight model, mission, world and painters wired together.
+// It also hands out a deterministic tick/render pair so the screenshot script
+// stages real frames from the real code instead of faking a picture.
 //
-// Two cameras share the same world: a chase view for flying and a first-person
-// cockpit for the real thing. `tod` bends the light from dawn to night.
+// One world, two cameras: a chase view to fly behind the aircraft and a
+// cockpit view on the pilot's eye. `tod` walks the light from dawn to night.
 
 import { createPlane, stepPlane } from './flight.js';
 import { createMission, stepMission } from './mission.js';
@@ -24,12 +24,15 @@ export function createFlightGame(canvas, options = {}) {
   let plane = createPlane();
   let mission = createMission();
   let running = false;
-  let last = 0;
+  let lastFrame = 0;
   let time = 0;
-  let width = 1280, height = 720;
+  let width = 1280;
+  let height = 720;
   let view = 'chase';
   let tod = 0.34;
 
+  // Backing store follows the CSS box, capped at 1.5x so a retina screen does
+  // not pay for four times the pixels.
   function resize() {
     const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
     width = Math.max(640, canvas.clientWidth || window.innerWidth);
@@ -41,6 +44,22 @@ export function createFlightGame(canvas, options = {}) {
   resize();
   window.addEventListener('resize', resize);
 
+  function drawDebrief() {
+    ctx.fillStyle = 'rgba(3,14,22,0.72)';
+    ctx.fillRect(0, height * 0.34, width, 120);
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 30px Courier New';
+    ctx.fillStyle = mission.landed ? '#8ef0d6' : '#ff9a7a';
+    ctx.fillText(mission.result, width / 2, height * 0.34 + 52);
+    ctx.font = '14px Courier New';
+    ctx.fillStyle = '#c3e5ee';
+    ctx.fillText('SCORE ' + mission.score + '   ·   PRESS R TO FLY AGAIN', width / 2, height * 0.34 + 88);
+    ctx.textAlign = 'left';
+  }
+
+  // Draw order is deliberate: sky, sky furniture, far peaks, ground, strip,
+  // gates, aircraft shadow, airframe, haze over the near field, cockpit when
+  // in the cockpit, target cue, HUD.
   function render() {
     ctx.clearRect(0, 0, width, height);
     const cockpit = view === 'cockpit';
@@ -58,27 +77,18 @@ export function createFlightGame(canvas, options = {}) {
     if (!cockpit) paintAircraft(ctx, width, height, plane, time);
     paintAtmosphereFront(ctx, width, height, horizon, tod);
     if (cockpit) paintCockpit(ctx, width, height, plane, tod);
-    if (mission.phase === 'rings' && !cockpit) paintTargetDiamond(ctx, project, GATES[mission.gateIndex], width, height);
+    if (mission.phase === 'rings' && !cockpit) {
+      paintTargetDiamond(ctx, project, GATES[mission.gateIndex], width, height);
+    }
     paintHud(ctx, width, height, plane, mission, input.state, view);
 
-    if (mission.finished) {
-      ctx.fillStyle = 'rgba(3,14,22,0.72)';
-      ctx.fillRect(0, height * 0.34, width, 120);
-      ctx.textAlign = 'center';
-      ctx.font = 'bold 30px Courier New';
-      ctx.fillStyle = mission.landed ? '#8ef0d6' : '#ff9a7a';
-      ctx.fillText(mission.result, width / 2, height * 0.34 + 52);
-      ctx.font = '14px Courier New';
-      ctx.fillStyle = '#c3e5ee';
-      ctx.fillText('SCORE ' + mission.score + '   ·   PRESS R TO FLY AGAIN', width / 2, height * 0.34 + 88);
-      ctx.textAlign = 'left';
-    }
+    if (mission.finished) drawDebrief();
   }
 
   function frame(now) {
     if (!running) return;
-    const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000 || 0.016));
-    last = now;
+    const dt = Math.min(0.05, Math.max(0.001, (now - lastFrame) / 1000 || 0.016));
+    lastFrame = now;
     tick(dt);
     requestAnimationFrame(frame);
   }
@@ -108,13 +118,13 @@ export function createFlightGame(canvas, options = {}) {
     resume() {
       if (running) return;
       running = true;
-      last = performance.now();
+      lastFrame = performance.now();
       requestAnimationFrame(frame);
     },
     start() {
       if (running) return;
       running = true;
-      last = performance.now();
+      lastFrame = performance.now();
       render();
       requestAnimationFrame(frame);
     },
@@ -128,6 +138,11 @@ export function createFlightGame(canvas, options = {}) {
     setTod(next) { tod = next; },
     setPlane(next) { plane = next; },
     setMission(next) { mission = next; },
-    reset() { plane = createPlane(); mission = createMission(); time = 0; render(); },
+    reset() {
+      plane = createPlane();
+      mission = createMission();
+      time = 0;
+      render();
+    },
   };
 }
