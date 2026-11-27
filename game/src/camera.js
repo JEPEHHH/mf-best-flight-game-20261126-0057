@@ -20,6 +20,18 @@ export function placeChaseCamera(cam, plane, lookX, lookY) {
   cam.bank = plane.bank * 0.35;
 }
 
+// Pilot eye point: slightly ahead of and above the model's origin, so the
+// dashboard sits at the bottom of the frame and the nose stays hidden.
+export function placeCockpitCamera(cam, plane, lookX, lookY) {
+  const h = plane.heading;
+  cam.x = plane.x + Math.sin(h) * 12;
+  cam.z = plane.z + Math.cos(h) * 12;
+  cam.y = plane.y + 4.6 + lookY * 3;
+  cam.heading = h + lookX * 0.03;
+  cam.pitch = plane.pitch * 0.92 + lookY * 0.02;
+  cam.bank = plane.bank * 0.82;
+}
+
 export function makeProjector(cam, width, height) {
   const ch = Math.cos(cam.heading), sh = Math.sin(cam.heading);
   const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);

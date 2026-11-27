@@ -1,6 +1,6 @@
 // RIDGELINE entry point (Node 22, standard library only).
 //
-// The deliverable is a static browser game in game/ plus three real renders
+// The deliverable is a static browser game in game/ plus four real renders
 // in screenshots/. This program assembles /output the same way on every run:
 // copy the two folders, then write dossier.json with buildDossier. A fresh
 // container has no network and no installed packages, so nothing here may

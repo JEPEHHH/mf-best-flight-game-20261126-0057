@@ -26,12 +26,28 @@ over a procedural granite coast, thread six amber gate rings, then bring the
 wheels down on strip 07. Throttle, bank discipline, fuel, g-load and terrain
 all matter; the HUD shows altitude, speed, heading, attitude and systems state.
 
+There is no engine, no vendored renderer and not one image file: every frame is
+painted on a 2D canvas from a pinned world seed by a small software renderer.
+The sun, the clouds, the sea glitter and the coastline all come from the same
+projector as the ridges, so the chase view and the cockpit view look at one
+world.
+
+## What is in the flight model
+
+- Throttle sets a target speed, bank drives turn rate, pitch trades height for
+  energy. Stalls, g-load, fuel burn and terrain strikes all feed damage.
+- Six gates in order, then a landing: gear, sink rate and centre-line discipline
+  score the sortie, and the strip has a real threshold, aiming blocks, PAPI and
+  approach bars to fly against.
+- Cockpit or chase camera (`C`), and a light control (`T`) that walks the sun
+  from dawn through midday to dusk, lighting the hamlet windows and the strip.
+
 ## Files
 
 - `game/` — static browser game, no build step. Open `game/index.html` in a
   desktop browser, or serve the folder with any static HTTP server.
-- `screenshots/` — three renders taken from the game itself; the first by name
-  is the cover.
+- `screenshots/` — four real renders taken from the game itself; the first by
+  name is the cover.
 - `main.ts` — Node 22 hand-in program: copies `game/` and `screenshots/` to
   the output directory and writes `dossier.json`.
 - `vendor/makefun-game.ts` — re-export of the untouched kit dossier builder in
@@ -40,7 +56,8 @@ all matter; the HUD shows altitude, speed, heading, attitude and systems state.
 
 ## Controls
 
-W/S throttle, A/D bank, arrow keys pitch, G gear, R restart, mouse camera look.
+W/S throttle, A/D bank, arrow keys pitch, G gear, C camera, T time of day,
+R restart, mouse look.
 
 ## Local hand-in
 

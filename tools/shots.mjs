@@ -1,7 +1,8 @@
-// Capture three real renders of the game's own code from a Chromium browser.
-// Run from the repository root with NODE_PATH pointing at a Playwright install.
+// Capture four real renders of the game's own code from a Chromium browser.
+// Run from the repository root with Playwright at /tmp/pw-shot.
 // The script never edits a pixel: it only positions the simulated aircraft and
-// asks the running game to render, then asks the browser to save the canvas.
+// the light, asks the running game to render, then asks the browser to save
+// the canvas.
 
 import { chromium } from '/tmp/pw-shot/node_modules/playwright/index.mjs';
 import { createServer } from 'node:http';
@@ -36,35 +37,56 @@ await page.waitForFunction(() => !!window.__flightGame);
 
 async function shot(name, setup) {
   await page.evaluate(setup);
-  await page.waitForTimeout(160);
+  await page.waitForTimeout(220);
   await page.locator('#view').screenshot({ path: join(root, 'screenshots', name) });
 }
 
 await mkdir(join(root, 'screenshots'), { recursive: true });
 
-await shot('01-departure.png', () => {
+// 1. Cockpit on final: dusk, gear down, the strip's approach bars ahead.
+await shot('01-cockpit-final.png', () => {
   const g = window.__flightGame;
   g.pause(); g.reset();
-  g.setPlane({ ...g.plane, x: -180, y: 218, z: -880, heading: 0.06, pitch: 0.03, bank: -0.16, speed: 132, throttle: 0.74, elapsed: 12, distance: 1240, gear: false });
-  g.render();
-});
-
-await shot('02-gate-run.png', () => {
-  const g = window.__flightGame;
-  g.pause(); g.reset();
-  g.setPlane({ ...g.plane, x: -300, y: 232, z: -145, heading: 0.34, pitch: 0.02, bank: 0.42, speed: 148, throttle: 0.82, elapsed: 41, distance: 4300, gear: false });
+  g.setView('cockpit'); g.setTod(0.63);
+  g.setPlane({ ...g.plane, x: 6, y: 52, z: 640, heading: 0.02, pitch: -0.03, bank: 0.05, speed: 98, throttle: 0.44, elapsed: 141, distance: 17200, gear: true, fuel: 21, damage: 6 });
   const m = g.mission;
-  m.gateIndex = 1; m.score = 268; m.message = 'GATE G1 CLEARED +268 — NEXT: G2'; m.messageAge = 2.4;
+  m.gateIndex = 6; m.phase = 'landing'; m.score = 1180; m.message = 'FINAL — STRIP 07, WHEELS DOWN'; m.messageAge = 2.6;
   g.setMission({ ...m });
   g.render();
 });
 
-await shot('03-final-approach.png', () => {
+// 2. Hard bank through the second gate in the chase view.
+await shot('02-gate-flythrough.png', () => {
   const g = window.__flightGame;
   g.pause(); g.reset();
-  g.setPlane({ ...g.plane, x: 18, y: 96, z: 690, heading: -0.04, pitch: -0.06, bank: 0.08, speed: 94, throttle: 0.42, elapsed: 128, distance: 15600, gear: true, fuel: 34, damage: 4 });
+  g.setView('chase'); g.setTod(0.34);
+  g.setPlane({ ...g.plane, x: -318, y: 226, z: -78, heading: 0.36, pitch: 0.03, bank: 0.44, speed: 152, throttle: 0.86, elapsed: 44, distance: 4600, gear: false });
   const m = g.mission;
-  m.gateIndex = 6; m.phase = 'landing'; m.score = 1214; m.message = 'ALL GATES CLEARED — RETURN TO THE STRIP, GEAR DOWN'; m.messageAge = 2.6;
+  m.gateIndex = 1; m.score = 271; m.message = 'GATE G1 CLEARED +271 — NEXT: G2'; m.messageAge = 2.4;
+  g.setMission({ ...m });
+  g.render();
+});
+
+// 3. Dawn run along the coast, hamlet and lighthouse below.
+await shot('03-coast-dawn.png', () => {
+  const g = window.__flightGame;
+  g.pause(); g.reset();
+  g.setView('chase'); g.setTod(0.2);
+  g.setPlane({ ...g.plane, x: -430, y: 168, z: 470, heading: -0.14, pitch: 0.02, bank: -0.28, speed: 138, throttle: 0.7, elapsed: 96, distance: 11400, gear: false, fuel: 61 });
+  const m = g.mission;
+  m.gateIndex = 5; m.score = 902; m.message = 'GATE G5 CLEARED +208 — NEXT: G6'; m.messageAge = 2.2;
+  g.setMission({ ...m });
+  g.render();
+});
+
+// 4. Touchdown, wheels on the numbers as the sun drops.
+await shot('04-touchdown.png', () => {
+  const g = window.__flightGame;
+  g.pause(); g.reset();
+  g.setView('chase'); g.setTod(0.68);
+  g.setPlane({ ...g.plane, x: -2, y: 47, z: 790, heading: 0.01, pitch: -0.035, bank: 0.02, speed: 58, throttle: 0.2, elapsed: 158, distance: 18900, gear: true, fuel: 12, damage: 12 });
+  const m = g.mission;
+  m.gateIndex = 6; m.phase = 'landing'; m.score = 1312; m.message = 'TOUCHDOWN — HOLD THE CENTRE LINE'; m.messageAge = 2.4;
   g.setMission({ ...m });
   g.render();
 });
@@ -72,4 +94,4 @@ await shot('03-final-approach.png', () => {
 await browser.close();
 await new Promise((resolve) => server.close(resolve));
 if (errors.length) { console.error('PAGE ERRORS', errors); process.exitCode = 1; }
-else console.log('Captured 3 screenshots from the live game');
+else console.log('Captured 4 screenshots from the live game');

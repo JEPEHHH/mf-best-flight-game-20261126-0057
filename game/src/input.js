@@ -1,9 +1,9 @@
-// Keyboard and mouse input. The mouse adds a small look offset to the chase
+// Keyboard and mouse input. The mouse adds a small look offset to either
 // camera; it never changes the flight path, so the controls stay predictable.
 
 export function createInput(canvas) {
   const keys = new Set();
-  const state = { roll: 0, pitch: 0, throttleUp: false, throttleDown: false, lookX: 0, lookY: 0, gearPress: false, restartPress: false };
+  const state = { roll: 0, pitch: 0, throttleUp: false, throttleDown: false, lookX: 0, lookY: 0, gearPress: false, restartPress: false, viewPress: false, timePress: false };
 
   const down = (e) => {
     const k = e.key.toLowerCase();
@@ -11,6 +11,8 @@ export function createInput(canvas) {
     if (!keys.has(k)) {
       if (k === 'g') state.gearPress = true;
       if (k === 'r') state.restartPress = true;
+      if (k === 'c') state.viewPress = true;
+      if (k === 't') state.timePress = true;
     }
     keys.add(k);
   };
@@ -37,6 +39,8 @@ export function createInput(canvas) {
     clearEdges() {
       state.gearPress = false;
       state.restartPress = false;
+      state.viewPress = false;
+      state.timePress = false;
     },
   };
 }
