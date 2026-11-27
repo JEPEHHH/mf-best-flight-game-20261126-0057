@@ -49,8 +49,14 @@ export function paintAtmosphereBack(ctx, project, width, height, cam, tod) {
   // Bloom and disc, added rather than painted so the sky brightens under it.
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
+  // Radius 330 sits well outside the 18 px disc, so the falloff reads as air
+  // glare instead of a stamped circle; it also stays inside the 700 px fill
+  // box, which keeps the gradient's outer ring off the frame edge. The low sun
+  // adds more glare than noon, so past 0.7 the core is pulled back and warmed
+  // rather than left at full strength.
+  const bloomCore = tod > 0.7 ? 'rgba(255,196,150,0.42)' : 'rgba(255,244,214,0.6)';
   const bloom = ctx.createRadialGradient(sun.x, sun.y, 4, sun.x, sun.y, 330);
-  bloom.addColorStop(0, tod > 0.7 ? 'rgba(255,196,150,0.55)' : 'rgba(255,244,214,0.6)');
+  bloom.addColorStop(0, bloomCore);
   bloom.addColorStop(0.3, 'rgba(255,214,158,0.18)');
   bloom.addColorStop(1, 'rgba(255,200,140,0)');
   ctx.fillStyle = bloom;

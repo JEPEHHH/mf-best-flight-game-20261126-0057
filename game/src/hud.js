@@ -12,6 +12,19 @@ const KTS_PER_MS = 1.94384;
 const FT_PER_M = 3.28084;
 const DEG = 180 / Math.PI;
 
+// Time of day belongs to the frame loop, which paints the HUD but does not hand
+// `tod` over the call: read it off the mounted game, and fall back to the dawn
+// default for non-browser paints. Bands mirror the sky ramps in atmosphere.js
+// so the caption never disagrees with the light it is describing.
+const TOD_BANDS = [[0.28, 'pagi'], [0.62, 'siang'], [0.8, 'senja']];
+
+function timeOfDayLabel() {
+  const game = typeof window === 'undefined' ? null : window.__flightGame;
+  const tod = game && typeof game.tod === 'number' ? game.tod : 0.34;
+  for (const [edge, name] of TOD_BANDS) if (tod < edge) return name;
+  return 'malam';
+}
+
 function panel(ctx, x, y, w, h) {
   ctx.fillStyle = 'rgba(6,22,32,0.6)';
   ctx.strokeStyle = 'rgba(105,214,226,0.5)';
@@ -201,16 +214,18 @@ export function paintHud(ctx, width, height, plane, mission, input, view = 'chas
     ctx.closePath();
     ctx.fill();
   label(ctx, 'CAM ' + (cockpit ? 'COCKPIT' : 'CHASE') + '  [C]', width - pad - 130, cockpit ? pad + 92 : pad + 100, 9, '#6c9aa9');
+  label(ctx, 'T · ' + timeOfDayLabel(), width - pad - 130, cockpit ? pad + 106 : pad + 114, 9, ink.meta);
   }
 
-  // Transient order line, lower centre, above the readout boxes.
+  // Transient order line, lower centre, lifted clear of the readout boxes
+  // below (they start at height - 132) so a fresh order never sits on a dial.
   if (mission.messageAge > 0 && !mission.finished) {
     ctx.font = 'bold 15px Courier New';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(5,20,28,0.78)';
-    ctx.fillRect(centreX - 260, height - 172, 520, 30);
+    ctx.fillRect(centreX - 260, height - 182, 520, 30);
     ctx.fillStyle = '#ffd88f';
-    ctx.fillText(mission.message, centreX, height - 152);
+    ctx.fillText(mission.message, centreX, height - 162);
     ctx.textAlign = 'left';
   }
 }
